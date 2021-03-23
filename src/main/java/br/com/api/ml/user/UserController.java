@@ -5,6 +5,8 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,18 +18,18 @@ public class UserController {
 
 	@PersistenceContext
 	private EntityManager manager;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@PostMapping
 	@Transactional
 	public UserResponseDTO postMethodName(@RequestBody @Valid UserRequestDTO request) {
-
-		System.out.println(request.getPassword());
 		
 		@Valid
-		User user = request.toModel();
-		System.out.println(user.getPassword());
+		User user = request.toModel(passwordEncoder);
 		manager.persist(user);
-		return new UserResponseDTO(user);
+		return new UserResponseDTO("Úsuario cadastrado com sucesso!", user.getTimestampSignUp());
 	}
 
 }
